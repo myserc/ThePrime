@@ -551,6 +551,25 @@
             start(hasSave) {
                 if (!hasSave) {
                     this.createNode("Node_Alpha", 2);
+                } else {
+                    // Re-initialize workers for restored nodes
+                    state.participants.forEach(p => {
+                        const worker = new Worker('ai-worker.js');
+                        worker.onmessage = (e) => {
+                            const { type, payload } = e.data;
+                            if (type === 'ACTION_TRANSFER') {
+                                app.executeTransfer(p.id, payload.targetId, 1, payload.unitType);
+                            }
+                        };
+                        worker.postMessage({
+                            type: 'INIT',
+                            payload: {
+                                id: p.id,
+                                config: CONFIG
+                            }
+                        });
+                        p.worker = worker;
+                    });
                 }
 
                 // Auto-Save Loop (Every 5 seconds)
@@ -560,8 +579,26 @@
             },
 
             createNode(name, books) {
+                const id = state.idCounter++;
+                const worker = new Worker('ai-worker.js');
+
+                worker.onmessage = (e) => {
+                    const { type, payload } = e.data;
+                    if (type === 'ACTION_TRANSFER') {
+                        app.executeTransfer(id, payload.targetId, 1, payload.unitType);
+                    }
+                };
+
+                worker.postMessage({
+                    type: 'INIT',
+                    payload: {
+                        id: id,
+                        config: CONFIG
+                    }
+                });
+
                 state.participants.push({
-                    id: state.idCounter++,
+                    id: id,
                     name: name,
                     vaultBooks: books,
                     activeBook: null,
@@ -574,7 +611,8 @@
                     lastReceipt: null,
 
                     isOnline: true,
-                    joinedAt: Date.now()
+                    joinedAt: Date.now(),
+                    worker: worker
                 });
                 ui.toast(`Node Initialized: ${name}`);
             },
@@ -591,6 +629,28 @@
                         state.simTime += safeDelta;
                         this.tick(steps);
                         if (state.isAuto) this.handleAuto(safeDelta);
+                    }
+
+                    // Periodically send state to workers
+                    if (Math.random() < 0.05) { // Roughly every 20 ticks
+                         state.participants.forEach(p => {
+                             if (p.worker) {
+                                 // Serialize only necessary state
+                                 p.worker.postMessage({
+                                     type: 'TICK',
+                                     payload: {
+                                         id: p.id,
+                                         primeValue: p.primeValue,
+                                         participants: state.participants.map(n => ({
+                                             id: n.id,
+                                             name: n.name,
+                                             primeValue: n.primeValue,
+                                             isOnline: n.isOnline
+                                         }))
+                                     }
+                                 });
+                             }
+                         });
                     }
                 }
 
@@ -791,6 +851,7 @@
             liquidate(id) {
                 const p = state.participants.find(x => x.id === id);
                 if (!p) return;
+                if (p.worker) p.worker.terminate();
                 state.participants = state.participants.filter(x => x.id !== id);
                 ui.toast(`REMOVED ${p.name}`);
             },
@@ -1107,6 +1168,7 @@
                                         <div class="flex items-center gap-2">
                                             <h4 class="text-xs font-bold text-white tracking-wider">${p.name}</h4>
                                             <span id="badge-${p.id}"></span>
+                                            ${p.worker ? '<span class="text-[10px] text-cyan-500" title="AI Agent Active">🤖</span>' : ''}
                                         </div>
                                         <div class="flex items-center gap-2 mt-1">
                                             <span id="status-${p.id}" class="text-[8px] px-1.5 py-0.5 rounded"></span>
