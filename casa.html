@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prime-Time | Thermodynamic Scarcity Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
+
+        :root {
+            --neon-cyan: #22d3ee;
+            --neon-purple: #a855f7;
+            --neon-emerald: #34d399;
+            --neon-orange: #fb923c;
+            --neon-rose: #fb7185;
+            --neon-yellow: #facc15;
+            --neon-indigo: #818cf8;
+            --bg-dark: #020617;
+            --panel-bg: rgba(15, 23, 42, 0.6);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: #e2e8f0;
+            background-image:
+                radial-gradient(circle at 50% 0%, rgba(34, 211, 238, 0.1) 0%, transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            overflow-x: hidden;
+        }
+
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(34, 211, 238, 0.1); border-color: rgba(34, 211, 238, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(34, 211, 238, 0.2); border-color: rgba(34, 211, 238, 0.6); }
+        }
+
+        @keyframes pulse-purple {
+            0%, 100% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.6); }
+        }
+
+        .active-standard { animation: pulse-glow 3s infinite; }
+        .active-heuristic { animation: pulse-purple 3s infinite; }
+        .node-offline { filter: grayscale(1) opacity(0.5); transition: filter 0.5s; }
+
+        .toast { animation: slideIn 0.3s ease-out forwards; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6 min-h-screen flex flex-col">
+
+    <!-- Loading Overlay -->
+    <div id="loader" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-500">
+        <div class="w-64 h-1 bg-slate-800 rounded-full overflow-hidden mb-4">
+            <div id="load-progress" class="h-full bg-cyan-400 w-0 transition-all duration-100"></div>
+        </div>
+        <p class="text-cyan-400 text-xs tracking-[0.2em] uppercase font-mono animate-pulse" id="load-status">INITIALIZING PRIME SIEVE...</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-[1600px] mx-auto w-full space-y-6 flex-1 flex flex-col">
+
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-6">
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter text-white flex items-center gap-3">
+                    PRIME-TIME <span class="text-xs bg-cyan-500/10 text-cyan-400 px-2 py-1 rounded border border-cyan-500/20 font-mono">AUTARKIC ENGINE</span>
+                </h1>
+                <div class="flex items-center gap-4 mt-2">
+                    <p class="text-slate-500 text-[10px] tracking-widest uppercase font-bold">5-Tier Heuristic Liquidity Spectrum</p>
+                    <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
+                    <p class="text-slate-500 text-[10px] tracking-widest uppercase" id="sys-time">TICK: 0</p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 items-center">
+                <div class="flex items-center bg-slate-900/50 rounded-lg border border-slate-800 px-3 py-1.5 mr-2 gap-2">
+                    <span class="text-[10px] text-slate-500 uppercase font-bold">Speed</span>
+                    <input type="range" min="1" max="50" value="25" class="w-24 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-400" oninput="CONFIG.TIME_SCALE = parseInt(this.value); document.getElementById('speed-val').innerText = this.value + 'x'">
+                    <span class="text-xs text-cyan-400 font-mono font-bold w-8 text-right" id="speed-val">25x</span>
+                </div>
+                <button onclick="app.togglePause()" id="btn-pause" class="px-4 py-2 rounded-lg bg-slate-800 text-xs font-bold border border-slate-700 hover:bg-slate-700 hover:text-white text-slate-400 transition-colors uppercase">
+                    Running
+                </button>
+                <button onclick="app.toggleAuto()" id="btn-auto" class="px-4 py-2 rounded-lg bg-slate-800 text-xs font-bold border border-slate-700 hover:bg-slate-700 hover:text-white text-slate-400 transition-colors uppercase">
+                    Auto: Off
+                </button>
+                <button onclick="app.toggleDebug()" id="btn-debug" class="px-4 py-2 rounded-lg bg-slate-800 text-xs font-bold border border-slate-700 hover:bg-slate-700 hover:text-white text-slate-400 transition-colors uppercase">
+                    Debug: Off
+                </button>
+                <button onclick="ui.openModal('modal-docs')" class="px-4 py-2 rounded-lg bg-slate-800 text-xs font-bold border border-slate-700 hover:bg-slate-700 hover:text-white text-slate-400 transition-colors uppercase">
+                    Docs
+                </button>
+                <button onclick="ui.openModal('modal-init')" class="px-5 py-2 rounded-lg bg-cyan-500 text-black text-xs font-bold hover:bg-cyan-400 transition-colors shadow-[0_0_20px_rgba(34,211,238,0.3)] uppercase tracking-wide">
+                    + Initialize Node
+                </button>
+                <button onclick="Persistence.clear()" class="px-3 py-2 rounded-lg bg-red-900/30 text-red-400 text-xs font-bold border border-red-900/50 hover:bg-red-900/50 transition-colors uppercase" title="Hard Reset">
+                    Reset
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Dashboard -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div class="glass-panel p-4 rounded-xl space-y-1 border-l-2 border-l-cyan-500/50">
+                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Active Supply</p>
+                <p class="text-lg font-bold text-white font-mono" id="stat-active-supply">0.0000</p>
+                <p class="text-[9px] text-cyan-500/80">Burning Fractions</p>
+            </div>
+            <div class="glass-panel p-4 rounded-xl space-y-1 border-l-2 border-l-emerald-500/50">
+                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Cold Supply</p>
+                <div class="flex items-baseline gap-2">
+                    <p class="text-lg font-bold text-emerald-400 font-mono" id="stat-vault-books">0</p>
+                    <span class="text-[10px] text-emerald-600 font-mono" id="stat-surplus" title="System Surplus">(+0)</span>
+                </div>
+                <p class="text-[9px] text-emerald-500/80">Vaulted + Surplus</p>
+            </div>
+            <div class="glass-panel p-4 rounded-xl space-y-1">
+                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Total Scarcity</p>
+                <p class="text-lg font-bold text-white font-mono" id="stat-total-scarcity">0</p>
+                <p class="text-[9px] text-slate-500">Σ System Value</p>
+            </div>
+            <div class="glass-panel p-4 rounded-xl space-y-1 border-l-2 border-l-purple-500/50">
+                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Unit Values (Precedents)</p>
+                <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-[9px] font-mono text-slate-400 mt-1" id="stat-precedents">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+            <div class="glass-panel p-4 rounded-xl space-y-1 border-l-2 border-l-orange-500/50">
+                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Active Nodes</p>
+                <p class="text-lg font-bold text-orange-400 font-mono" id="stat-active">0</p>
+                <p class="text-[9px] text-orange-500/80">Staking Participants</p>
+            </div>
+            <div class="glass-panel p-4 rounded-xl space-y-1">
+                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Net Entropy</p>
+                <div class="flex justify-between items-end">
+                    <p class="text-lg font-bold text-white font-mono" id="stat-entropy">0</p>
+                    <div class="w-12 h-1 bg-slate-800 rounded-full overflow-hidden mb-2" title="Entropy Event Progress">
+                        <div id="stat-residue" class="h-full bg-cyan-400 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+                <p class="text-[9px] text-slate-500">System Work Delta</p>
+            </div>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-6 flex-1 min-h-0">
+
+            <!-- Left: Node Grid -->
+            <div class="xl:col-span-3 flex flex-col gap-4 min-h-0">
+                <div class="flex items-center justify-between bg-slate-900/30 p-3 rounded-lg border border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-sm font-bold text-white uppercase tracking-widest">Active Nodes</h2>
+                        <span class="text-[10px] text-slate-500 border-l border-slate-700 pl-3 uppercase" id="transfer-hint">
+                            Drag & Drop to transfer Heuristics
+                        </span>
+                    </div>
+                    <div class="flex gap-2">
+                         <input type="text" id="search-nodes" placeholder="SEARCH NODES..." class="bg-slate-900 border border-slate-700 rounded px-3 py-1 text-[10px] text-white focus:border-cyan-500 outline-none uppercase w-40">
+                    </div>
+                </div>
+
+                <div id="node-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto pr-2 pb-4 custom-scrollbar">
+                    <!-- Nodes Injected Here -->
+                </div>
+            </div>
+
+            <!-- Right: Sidebar -->
+            <div class="flex flex-col gap-6 min-h-0">
+
+                <!-- Ledger Panel -->
+                <div class="glass-panel rounded-xl flex flex-col flex-1 min-h-[400px]">
+                    <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                        <h3 class="text-xs font-bold text-white uppercase tracking-widest">Global Ledger</h3>
+                        <div class="flex gap-2 text-[10px] font-bold">
+                            <button onclick="ui.setTab('books')" id="tab-books" class="text-cyan-400">BOOKS</button>
+                            <span class="text-slate-700">|</span>
+                            <button onclick="ui.setTab('transfers')" id="tab-transfers" class="text-slate-500 hover:text-purple-400">TRANSFERS</button>
+                        </div>
+                    </div>
+                    <div id="ledger-content" class="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+                        <!-- Ledger Items -->
+                    </div>
+                </div>
+
+                <!-- Info Panel -->
+                <div class="glass-panel p-5 rounded-xl border-dashed border-slate-700/50">
+                    <h3 class="text-xs font-bold text-cyan-400 mb-3 uppercase tracking-widest">Thermodynamic Rules</h3>
+                    <ul class="text-[10px] text-slate-400 space-y-3 leading-relaxed">
+                        <li class="flex gap-2">
+                            <span class="text-purple-500 font-bold">HEURISTIC</span>
+                            <span>
+                                Sharing a Unit establishes a new Minting Standard based on precedent: <strong class="text-cyan-400">result2 = Math.floor(9731081 / precedent) × precedent</strong>.
+                            </span>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="text-emerald-500 font-bold">ENTROPY</span>
+                            <span>
+                                Transfers down the gradient (Rich → Poor) release <strong class="text-white">Positive Entropy</strong> calculated via: <strong class="text-yellow-400">ΔS = 648000 - primePi(result2)</strong>. Transfers up the gradient (Poor → Rich) consume Entropy.
+                            </span>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="text-red-500 font-bold">VOID</span>
+                            <span>
+                                Excessive Negative Entropy (-648k) permanently vaporizes a Book from circulation (Deflation). Positive Entropy (+648k) mints Surplus.
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="fixed inset-0 z-[200] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+
+        <!-- Reusable Modal Container (Transfers) -->
+        <div id="modal-content" class="glass-panel w-full max-w-md p-6 rounded-2xl border-cyan-500/30 hidden scale-95 opacity-0 transition-all duration-300">
+            <!-- Injected Content -->
+        </div>
+
+        <!-- Init Node Modal -->
+        <div id="modal-init" class="glass-panel w-full max-w-md p-6 rounded-2xl border-cyan-500/30 hidden scale-95 opacity-0 transition-all duration-300">
+            <h2 class="text-xl font-bold text-white mb-1 uppercase tracking-tighter">Initialize Node</h2>
+            <p class="text-[10px] text-slate-500 mb-6 uppercase">Deploy a new autarkic worker</p>
+
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-[10px] font-bold text-cyan-400 mb-2 uppercase tracking-wider">Node Designation</label>
+                    <input type="text" id="inp-node-name" placeholder="e.g. Node_Delta" onkeypress="if(event.key === 'Enter') app.addNode()" class="w-full bg-slate-900/50 border border-slate-700 rounded px-4 py-2.5 text-xs text-white focus:border-cyan-500 outline-none uppercase font-mono placeholder-slate-600 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-cyan-400 mb-2 uppercase tracking-wider">Initial Vault Balance (Books)</label>
+                    <input type="number" id="inp-node-books" value="2" min="1" max="100" onkeypress="if(event.key === 'Enter') app.addNode()" class="w-full bg-slate-900/50 border border-slate-700 rounded px-4 py-2.5 text-xs text-white focus:border-cyan-500 outline-none uppercase font-mono transition-colors">
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="ui.closeModal('modal-init')" class="flex-1 px-4 py-3 rounded-lg bg-slate-800 text-xs font-bold text-slate-400 hover:text-white transition-all uppercase tracking-wider">CANCEL</button>
+                <button onclick="app.addNode()" class="flex-1 px-4 py-3 rounded-lg bg-cyan-500 text-black text-xs font-bold transition-all shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:bg-cyan-400 uppercase tracking-wider">DEPLOY</button>
+            </div>
+        </div>
+
+        <!-- Documentation Modal -->
+        <div id="modal-docs" class="glass-panel w-full max-w-2xl p-8 rounded-2xl border-cyan-500/30 hidden scale-95 opacity-0 transition-all duration-300 max-h-[80vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-start mb-6 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-2xl font-black text-white uppercase tracking-tighter mb-1">The Alpha Book Protocol</h2>
+                    <p class="text-xs text-cyan-400 font-mono uppercase tracking-widest">Thermodynamic Scarcity Engine V4.0</p>
+                </div>
+                <button onclick="ui.closeModal('modal-docs')" class="text-slate-500 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="space-y-8 text-slate-300 text-sm leading-relaxed">
+
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        <span class="text-cyan-400">01.</span> Prime Value Generation
+                    </h3>
+                    <p class="mb-3">
+                        Value in this system is not arbitrary; it is derived from the <strong class="text-white">Prime Number Sequence</strong>.
+                        Every unit of work performed by a Node advances its internal counter. This counter corresponds to an ordinal position in the sequence of prime numbers.
+                    </p>
+                    <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-800 font-mono text-xs text-emerald-400">
+                        Work (Counts) → Ordinal Index → Prime Value (Scarcity)
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        <span class="text-purple-400">02.</span> Heuristic Currency
+                    </h3>
+                    <p class="mb-3">
+                        The system operates on a 5-tier liquidity spectrum based on time and geometry. Each unit acts as a <strong class="text-white">Precedent</strong> for value calculation.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-slate-900/30 p-3 rounded border border-rose-500/30">
+                            <span class="text-rose-400 font-bold block text-xs mb-1">QUADRANT (◴)</span>
+                            <span class="text-[10px] text-slate-400">The Base Unit. Represents 1/4 of a cycle. High scarcity threshold.</span>
+                        </div>
+                        <div class="bg-slate-900/30 p-3 rounded border border-yellow-500/30">
+                            <span class="text-yellow-400 font-bold block text-xs mb-1">DAY (☼)</span>
+                            <span class="text-[10px] text-slate-400">Standard operational unit. Moderate scarcity.</span>
+                        </div>
+                        <div class="bg-slate-900/30 p-3 rounded border border-purple-500/30">
+                            <span class="text-purple-400 font-bold block text-xs mb-1">DEGREE (°)</span>
+                            <span class="text-[10px] text-slate-400">Geometric unit. 1/360th of a cycle.</span>
+                        </div>
+                        <div class="bg-slate-900/30 p-3 rounded border border-cyan-500/30">
+                            <span class="text-cyan-400 font-bold block text-xs mb-1">TWIN (♊)</span>
+                            <span class="text-[10px] text-slate-400">Rare prime alignment. Extremely high value density.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        <span class="text-orange-400">03.</span> Thermodynamic Entropy
+                    </h3>
+                    <p class="mb-3">
+                        The system enforces thermodynamic equilibrium through <strong class="text-white">Entropy</strong>.
+                        Transferring value creates an energy differential.
+                    </p>
+                    <ul class="list-disc pl-5 space-y-2 marker:text-slate-600">
+                        <li><strong class="text-emerald-400">Positive Entropy:</strong> Generated when value flows "downhill" (Rich → Poor). This expands the system surplus.</li>
+                        <li><strong class="text-red-400">Negative Entropy:</strong> Generated when value flows "uphill" (Poor → Rich). This consumes system energy and can lead to Void events (deflation).</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        <span class="text-indigo-400">04.</span> Rolling Momentum
+                    </h3>
+                    <p>
+                        Unlike traditional proof-of-work where progress is binary, this engine uses <strong class="text-white">Rolling Momentum</strong>.
+                        When a Node mints a Book, it only spends the exact "Counts" required for that difficulty tier.
+                        Any excess work performed is preserved, carrying over to the next cycle. Work is never wasted.
+                    </p>
+                </section>
+
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-slate-800 flex justify-end">
+                <button onclick="ui.closeModal('modal-docs')" class="px-6 py-2 rounded-lg bg-slate-800 text-white text-xs font-bold hover:bg-slate-700 transition-colors uppercase tracking-wider">Close Manual</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[300] flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        /**
+         * PRIME-TIME ENGINE V4.0 (Mathematical Scarcity Gradient)
+         * The Thermodynamic Autarkic Engine
+         */
+
+        // --- CONFIGURATION & UNITS ---
+        const CONFIG = {
+            TOTAL_BOOK_COUNTS: 648000,
+            TIME_SCALE: 25,
+            PRIME_LIMIT: 10000000
+        };
+
+        const UNITS = {
+            QUADRANT: { id: 'QUADRANT', name: 'Quadrant', symbol: '◴', counts: 162000, color: 'text-rose-400', bg: 'bg-rose-500' },
+            DAY:      { id: 'DAY',      name: 'Day',      symbol: '☼', counts: 43200,  color: 'text-yellow-400', bg: 'bg-yellow-500' },
+            DEGREE:   { id: 'DEGREE',   name: 'Degree',   symbol: '°', counts: 1800,   color: 'text-purple-400', bg: 'bg-purple-500' },
+            MINUTE:   { id: 'MINUTE',   name: 'Minute',   symbol: "'", counts: 30,     color: 'text-indigo-400', bg: 'bg-indigo-500' },
+            TWIN:     { id: 'TWIN',     name: 'Twin',     symbol: '♊', counts: 1,      color: 'text-cyan-400', bg: 'bg-cyan-500' }
+        };
+
+        // --- STATE MANAGEMENT ---
+        const state = {
+            primes: new Uint32Array(0),
+            participants: [],
+            books: [],
+            transfers: [],
+            totalScarcity: 0,
+            netEntropy: 0,
+
+            // Evaluated Standards
+            precedents: {},
+            heuristicStandards: {},
+
+            // Runtime
+            lastTick: 0,
+            simTime: 0,
+            isPaused: false,
+            isAuto: false,
+            idCounter: 1000,
+            autoSpawnTimer: 0,
+
+            // Minting Thresholds
+            standardMintScarcity: 0,
+
+            // UI State
+            activeTab: 'books',
+            pendingTransfer: null,
+            isDebug: false,
+
+            // Economy
+            systemSurplus: 0
+        };
+
+        // --- PERSISTENCE ---
+        const Persistence = {
+            KEY: 'prime_time_v4_state',
+
+            save() {
+                const data = {
+                    participants: state.participants,
+                    books: state.books,
+                    transfers: state.transfers,
+                    totalScarcity: state.totalScarcity,
+                    netEntropy: state.netEntropy,
+                    simTime: state.simTime,
+                    idCounter: state.idCounter,
+                    isAuto: state.isAuto,
+                    systemSurplus: state.systemSurplus
+                };
+                try {
+                    localStorage.setItem(this.KEY, JSON.stringify(data));
+                } catch (e) {
+                    console.warn("LocalStorage full or disabled");
+                }
+            },
+
+            load() {
+                const raw = localStorage.getItem(this.KEY);
+                if (!raw) return false;
+
+                try {
+                    const data = JSON.parse(raw);
+                    state.participants = data.participants || [];
+                    state.books = data.books || [];
+                    state.transfers = data.transfers || [];
+                    state.totalScarcity = data.totalScarcity || 0;
+                    state.netEntropy = data.netEntropy || 0;
+                    state.simTime = data.simTime || 0;
+                    state.idCounter = data.idCounter || 1000;
+                    state.isAuto = data.isAuto || false;
+                    state.systemSurplus = data.systemSurplus || 0;
+                    return true;
+                } catch (e) {
+                    console.error("Save file corrupted", e);
+                    return false;
+                }
+            },
+
+            clear() {
+                localStorage.removeItem(this.KEY);
+                location.reload();
+            }
+        };
+
+        // --- PRIME ENGINE ---
+        const Engine = {
+            async init() {
+                const limit = CONFIG.PRIME_LIMIT;
+                const sieve = new Uint8Array(limit).fill(1);
+                sieve[0] = 0; sieve[1] = 0;
+
+                const updateProgress = (pct) => {
+                    document.getElementById('load-progress').style.width = `${pct}%`;
+                };
+
+                const chunkSize = 1000;
+                for (let i = 2; i * i < limit; i++) {
+                    if (sieve[i]) {
+                        for (let j = i * i; j < limit; j += i) sieve[j] = 0;
+                    }
+                    if (i % chunkSize === 0) {
+                        updateProgress(Math.floor((i / Math.sqrt(limit)) * 100));
+                        await new Promise(r => setTimeout(r, 0));
+                    }
+                }
+
+                const tempPrimes = [];
+                for (let i = 0; i < limit; i++) {
+                    if (sieve[i]) tempPrimes.push(i);
+                }
+                state.primes = new Uint32Array(tempPrimes);
+
+                // Calculate Precedents based on 0-indexing
+                Object.values(UNITS).forEach(unit => {
+                    state.precedents[unit.id] = this.getPrimeAt(unit.counts - 1);
+                });
+
+                // Calculate Mathematical Heuristic Standard Constants
+                state.standardMintScarcity = this.getPrimeAt(CONFIG.TOTAL_BOOK_COUNTS - 1); // Exact: 9,731,081
+
+                Object.values(UNITS).forEach(unit => {
+                    const precedent = state.precedents[unit.id]; // nthPrime(CONFIG.COUNTS_PER_UNIT)
+                    const result1 = Math.floor(state.standardMintScarcity / precedent);
+                    const result2 = result1 * precedent;
+
+                    // primePi(result2) is synonymous to the ordinal 1-based index
+                    // getOrdinalForPrime returns largest index (0-based) where prime <= result2
+                    const result3 = this.getOrdinalForPrime(result2) + 1;
+                    const result4 = CONFIG.TOTAL_BOOK_COUNTS - result3; // Entropy Change
+
+                    state.heuristicStandards[unit.id] = {
+                        mintScarcity: result2,
+                        mintCounts: result3,
+                        entropyChange: result4
+                    };
+                });
+
+                console.log(`Engine Ready. Primes: ${state.primes.length}`);
+
+                // Load State
+                const loaded = Persistence.load();
+                if (loaded) ui.toast("SYSTEM STATE RESTORED");
+
+                ui.hideLoader();
+                app.start(loaded);
+            },
+
+            getPrimeAt(index) {
+                if (index < 0) return 0;
+                if (index >= state.primes.length) return state.primes[state.primes.length - 1];
+                return state.primes[index];
+            },
+
+            getOrdinalForPrime(value) {
+                let low = 0, high = state.primes.length - 1;
+                while (low <= high) {
+                    const mid = (low + high) >>> 1;
+                    const midVal = state.primes[mid];
+                    if (midVal < value) low = mid + 1;
+                    else if (midVal > value) high = mid - 1;
+                    else return mid;
+                }
+                return high; // largest prime index <= value
+            }
+        };
+
+        // --- GAME LOGIC ---
+        const app = {
+            start(hasSave) {
+                if (!hasSave) {
+                    this.createNode("Node_Alpha", 2);
+                }
+
+                // Auto-Save Loop (Every 5 seconds)
+                setInterval(() => Persistence.save(), 5000);
+
+                requestAnimationFrame(this.loop.bind(this));
+            },
+
+            createNode(name, books) {
+                state.participants.push({
+                    id: state.idCounter++,
+                    name: name,
+                    vaultBooks: books,
+                    activeBook: null,
+                    counts: 0,
+                    primeValue: 0,
+                    balanceAdjustment: 0,
+
+                    // Current Unit Heuristic Standard assigned to node
+                    activeHeuristic: null,
+                    lastReceipt: null,
+
+                    isOnline: true,
+                    joinedAt: Date.now()
+                });
+                ui.toast(`Node Initialized: ${name}`);
+            },
+
+            loop(timestamp) {
+                if (!state.lastTick) state.lastTick = timestamp;
+                const delta = timestamp - state.lastTick;
+
+                if (!state.isPaused) {
+                    const safeDelta = Math.min(delta, 100);
+                    const steps = (safeDelta / 16.67) * CONFIG.TIME_SCALE;
+
+                    if (steps > 0) {
+                        state.simTime += safeDelta;
+                        this.tick(steps);
+                        if (state.isAuto) this.handleAuto(safeDelta);
+                    }
+                }
+
+                state.lastTick = timestamp;
+                ui.render();
+                requestAnimationFrame(this.loop.bind(this));
+            },
+
+            tick(steps) {
+                let tickTotalScarcity = 0;
+                let activeCount = 0;
+                let entropyDelta = 0;
+
+                state.participants.forEach(p => {
+                    const isGenesis = state.participants.length === 1;
+                    let threshold = state.standardMintScarcity;
+                    let activeH = p.activeHeuristic || (isGenesis ? 'QUADRANT' : null);
+
+                    if (activeH) {
+                        threshold = state.heuristicStandards[activeH].mintScarcity;
+                    }
+
+                    const isReady = p.primeValue >= threshold;
+                    let actualSteps = 0;
+
+                    // Burn Logic
+                    if (!isReady) {
+                        if (!p.activeBook && p.vaultBooks > 0) {
+                            p.vaultBooks--;
+                            p.activeBook = { remainingCounts: CONFIG.TOTAL_BOOK_COUNTS, maxCounts: CONFIG.TOTAL_BOOK_COUNTS };
+                        }
+
+                        if (p.activeBook) {
+                            const burn = steps;
+                            if (p.activeBook.remainingCounts >= burn) {
+                                actualSteps = burn;
+                                p.activeBook.remainingCounts -= burn;
+                            } else {
+                                actualSteps = p.activeBook.remainingCounts;
+                                p.activeBook = null;
+                            }
+                        }
+                    }
+
+                    if (actualSteps > 0) {
+                        p.isOnline = true;
+                        activeCount++;
+                        p.counts += actualSteps;
+                    } else {
+                        p.isOnline = false;
+                    }
+
+                    // Scarcity Calculation
+                    const ordinalIndex = Math.max(0, Math.round(p.counts) - 1);
+                    const safeIndex = Math.min(ordinalIndex, CONFIG.PRIME_LIMIT - 1);
+                    const rawPrime = Engine.getPrimeAt(safeIndex);
+                    p.primeValue = Math.max(0, rawPrime + p.balanceAdjustment);
+
+                    // Mint Check
+                    const mintPossible = p.primeValue >= threshold;
+
+                    if (mintPossible) {
+                        const cost = threshold;
+                        const countsConsumed = activeH ? state.heuristicStandards[activeH].mintCounts : CONFIG.TOTAL_BOOK_COUNTS;
+                        const mintType = activeH || 'STANDARD';
+
+                        // Entropy Logic (Result 4 derived from Mint Action)
+                        const efficiencyGain = CONFIG.TOTAL_BOOK_COUNTS - countsConsumed;
+
+                        if (efficiencyGain > 0) {
+                            entropyDelta += efficiencyGain;
+                        }
+
+                        p.vaultBooks++;
+
+                        state.books.unshift({
+                            id: Date.now() + Math.random(),
+                            owner: p.name,
+                            value: 1,
+                            type: mintType,
+                            time: new Date().toLocaleTimeString()
+                        });
+
+                        // ROLLING MOMENTUM (Non-Destructive Reset)
+                        // Philosophy: Work carries over. Subtract only the counts consumed.
+                        p.counts = Math.max(0, p.counts - countsConsumed);
+
+                        // Recalculate Prime Value based on remaining counts
+                        const newOrdinal = Math.max(0, Math.round(p.counts) - 1);
+                        p.primeValue = Engine.getPrimeAt(newOrdinal);
+
+                        // Reset Balance Adjustment (since we are realigning to a prime)
+                        p.balanceAdjustment = 0;
+
+                        // Clear Flags
+                        p.activeHeuristic = null;
+                        p.lastReceipt = null;
+
+                        ui.toast(`${p.name} MINTED BOOK!`);
+                    }
+
+                    tickTotalScarcity += p.primeValue;
+                });
+
+                state.totalScarcity = tickTotalScarcity;
+                state.netEntropy += entropyDelta;
+
+                // System Expansion
+                while (state.netEntropy >= CONFIG.TOTAL_BOOK_COUNTS) {
+                    state.netEntropy -= CONFIG.TOTAL_BOOK_COUNTS;
+                    state.systemSurplus++;
+                    state.books.unshift({
+                        id: Date.now(),
+                        owner: "SYSTEM_SURPLUS",
+                        value: 1,
+                        type: "ENTROPY_LOG",
+                        time: new Date().toLocaleTimeString()
+                    });
+                    ui.toast(`📈 AUTARKIC MINT: System Surplus Expanded!`);
+                }
+
+                // System Contraction
+                while (state.netEntropy <= -CONFIG.TOTAL_BOOK_COUNTS) {
+                    state.netEntropy += CONFIG.TOTAL_BOOK_COUNTS;
+
+                    if (state.systemSurplus > 0) {
+                        state.systemSurplus--;
+                        state.books.unshift({
+                            id: Date.now(),
+                            owner: "SYSTEM_SURPLUS",
+                            value: -1,
+                            type: "ENTROPY_VOID",
+                            time: new Date().toLocaleTimeString()
+                        });
+                        ui.toast(`📉 SYSTEM CONTRACTION: Surplus Absorbed Void!`);
+                    } else {
+                        state.books.unshift({
+                            id: Date.now(),
+                            owner: "SYSTEM_VOID",
+                            value: -1,
+                            type: "ENTROPY_VOID",
+                            time: new Date().toLocaleTimeString()
+                        });
+                        ui.toast(`📉 THE ABYSS: Book Liquidated by Void!`);
+                    }
+                }
+            },
+
+            handleAuto(delta) {
+                state.autoSpawnTimer += delta;
+                if (state.autoSpawnTimer > 2500 && state.participants.length < 15) {
+                    state.autoSpawnTimer = 0;
+                    if (Math.random() > 0.5) {
+                        const names = ["Cipher", "Neo", "Trinity", "Morpheus", "Oracle", "Smith", "Tank", "Dozer", "Apoc", "Switch"];
+                        const name = names[Math.floor(Math.random() * names.length)] + "_" + Math.floor(Math.random() * 999);
+                        this.createNode(name, 2);
+                    }
+                }
+            },
+
+            togglePause() {
+                state.isPaused = !state.isPaused;
+                document.getElementById('btn-pause').innerText = state.isPaused ? "PAUSED" : "RUNNING";
+                document.getElementById('btn-pause').classList.toggle('text-orange-400');
+            },
+
+            toggleAuto() {
+                state.isAuto = !state.isAuto;
+                document.getElementById('btn-auto').innerText = state.isAuto ? "AUTO: ON" : "AUTO: OFF";
+                document.getElementById('btn-auto').classList.toggle('text-cyan-400');
+            },
+
+            toggleDebug() {
+                state.isDebug = !state.isDebug;
+                const btn = document.getElementById('btn-debug');
+                btn.innerText = state.isDebug ? "DEBUG: ON" : "DEBUG: OFF";
+                btn.classList.toggle('text-yellow-400');
+                btn.classList.toggle('border-yellow-500/50');
+                ui.render();
+            },
+
+            addNode() {
+                const name = document.getElementById('inp-node-name').value || "Node_" + state.idCounter;
+                const books = parseFloat(document.getElementById('inp-node-books').value) || 2;
+                this.createNode(name, books);
+                ui.closeModal();
+            },
+
+            deposit(id) {
+                const amount = 1;
+                const p = state.participants.find(x => x.id === id);
+                if (p) {
+                    p.vaultBooks += amount;
+                    ui.toast(`Injected 1 Book to ${p.name}`);
+                }
+            },
+
+            liquidate(id) {
+                const p = state.participants.find(x => x.id === id);
+                if (!p) return;
+                state.participants = state.participants.filter(x => x.id !== id);
+                ui.toast(`REMOVED ${p.name}`);
+            },
+
+            // --- TRANSFER LOGIC ---
+            handleDragStart(e, id) {
+                e.dataTransfer.setData("text/plain", id);
+                e.dataTransfer.effectAllowed = "move";
+                state.dragSourceId = id;
+                document.getElementById(`node-${id}`).classList.add('opacity-50', 'border-purple-500');
+            },
+
+            handleDragOver(e, id) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+                if (state.dragSourceId !== id) {
+                    document.getElementById(`node-${id}`).classList.add('bg-slate-700');
+                }
+            },
+
+            handleDragLeave(e, id) {
+                document.getElementById(`node-${id}`).classList.remove('bg-slate-700');
+            },
+
+            handleDrop(e, targetId) {
+                e.preventDefault();
+                const sourceId = parseInt(e.dataTransfer.getData("text/plain"));
+                document.getElementById(`node-${sourceId}`).classList.remove('opacity-50', 'border-purple-500');
+                document.getElementById(`node-${targetId}`).classList.remove('bg-slate-700');
+
+                if (sourceId !== targetId) {
+                    this.initiateTransferModal(sourceId, targetId);
+                }
+                state.dragSourceId = null;
+            },
+
+            initiateTransferModal(sourceId, targetId) {
+                const source = state.participants.find(x => x.id === sourceId);
+                const target = state.participants.find(x => x.id === targetId);
+                if (!source || !target) return;
+
+                state.pendingTransfer = { sourceId, targetId, type: 'DEGREE' };
+                this.renderTransferModal();
+                ui.openModal('modal-content');
+            },
+
+            setTransferType(type) {
+                if (!state.pendingTransfer) return;
+                state.pendingTransfer.type = type;
+                this.currentTransferAmount = 1;
+                this.renderTransferModal();
+            },
+
+            renderTransferModal() {
+                const { sourceId, targetId, type } = state.pendingTransfer;
+                const source = state.participants.find(x => x.id === sourceId);
+                const target = state.participants.find(x => x.id === targetId);
+
+                const unitDef = UNITS[type];
+                const precedent = state.precedents[type];
+                const max = Math.floor(source.primeValue / precedent);
+
+                state.pendingTransfer.max = max;
+
+                const typeButtons = Object.values(UNITS).map(u => {
+                    const isActive = u.id === type;
+                    return `<button onclick="app.setTransferType('${u.id}')" class="flex-1 py-2 rounded text-[10px] font-bold uppercase transition-all ${isActive ? u.bg + ' text-white shadow-lg' : 'text-slate-500 hover:text-white'}">${u.symbol}</button>`;
+                }).join('');
+
+                const modal = document.getElementById('modal-content');
+                modal.innerHTML = `
+                    <h2 class="text-xl font-bold text-white mb-1 uppercase tracking-tighter">Heuristic Transfer</h2>
+                    <p class="text-[10px] text-slate-500 mb-6 uppercase">${source.name} → ${target.name}</p>
+
+                    <div class="flex justify-center gap-1 mb-6 bg-slate-900/50 p-1 rounded-lg">
+                        ${typeButtons}
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-4xl font-black ${unitDef.color} font-mono" id="transfer-amount">1</span>
+                            <span class="text-[10px] text-slate-500 uppercase">${unitDef.name}S AVAILABLE: ${max.toLocaleString()}</span>
+                        </div>
+
+                        <div class="flex justify-center gap-4">
+                            <button onmousedown="app.startIncrement(-1)" onmouseup="app.stopIncrement()" onmouseleave="app.stopIncrement()" class="w-12 h-12 rounded-full bg-slate-800 border border-slate-700 text-white font-bold hover:bg-slate-700 active:scale-95 transition-all">-</button>
+                            <button onmousedown="app.startIncrement(1)" onmouseup="app.stopIncrement()" onmouseleave="app.stopIncrement()" class="w-12 h-12 rounded-full bg-slate-800 border border-slate-700 text-white font-bold hover:bg-slate-700 active:scale-95 transition-all">+</button>
+                        </div>
+
+                        <div class="flex gap-2 pt-2">
+                            <button onclick="ui.closeTransferModal()" class="flex-1 px-4 py-3 rounded-lg bg-slate-800 text-xs font-bold text-slate-400 hover:text-white transition-all uppercase tracking-wider">CANCEL</button>
+                            <button onclick="app.confirmTransfer()" class="flex-1 px-4 py-3 rounded-lg ${unitDef.bg} ${unitDef.id==='DAY' || unitDef.id==='TWIN' ? 'text-black' : 'text-white'} text-xs font-bold transition-all shadow-lg hover:opacity-80 uppercase tracking-wider">SEND ${unitDef.symbol}</button>
+                        </div>
+                    </div>
+                `;
+            },
+
+            incrementInterval: null,
+            currentTransferAmount: 1,
+
+            startIncrement(delta) {
+                const update = () => {
+                    if (!state.pendingTransfer) return;
+                    let newVal = this.currentTransferAmount + delta;
+                    if (newVal < 1) newVal = 1;
+                    if (newVal > state.pendingTransfer.max) newVal = state.pendingTransfer.max;
+                    this.currentTransferAmount = newVal;
+                    document.getElementById('transfer-amount').innerText = newVal;
+                };
+                update();
+                this.incrementInterval = setInterval(update, 100);
+            },
+
+            stopIncrement() {
+                clearInterval(this.incrementInterval);
+            },
+
+            confirmTransfer() {
+                if (!state.pendingTransfer) return;
+                const { sourceId, targetId, type } = state.pendingTransfer;
+                const amount = this.currentTransferAmount;
+
+                this.executeTransfer(sourceId, targetId, amount, type);
+                ui.closeTransferModal();
+                state.pendingTransfer = null;
+                this.currentTransferAmount = 1;
+            },
+
+            executeTransfer(sourceId, targetId, amount, type) {
+                const source = state.participants.find(x => x.id === sourceId);
+                const target = state.participants.find(x => x.id === targetId);
+
+                if (source && target) {
+                    const precedent = state.precedents[type];
+                    const val = amount * precedent;
+
+                    const oldSourceCounts = Math.floor(source.counts);
+                    const oldTargetCounts = Math.floor(target.counts);
+
+                    // Strict Scarcity Transfer
+                    const newSourceVal = Math.max(0, source.primeValue - val);
+                    const newSourceCounts = Engine.getOrdinalForPrime(newSourceVal);
+                    const newSourceBase = Engine.getPrimeAt(newSourceCounts);
+
+                    source.primeValue = newSourceVal;
+                    source.counts = newSourceCounts;
+                    source.balanceAdjustment = newSourceVal - newSourceBase;
+
+                    target.primeValue += val;
+                    target.counts = Engine.getOrdinalForPrime(target.primeValue);
+                    const newTargetBase = Engine.getPrimeAt(target.counts);
+                    target.balanceAdjustment = target.primeValue - newTargetBase;
+
+                    // Assign New Standard to Recipient
+                    target.activeHeuristic = type;
+                    target.lastReceipt = `+${amount}${UNITS[type].symbol}`;
+
+                    // Mathematical Directional Entropy Logic (Result4)
+                    const result4 = state.heuristicStandards[type].entropyChange;
+                    let entropy = 0;
+
+                    if (oldSourceCounts > oldTargetCounts) {
+                        entropy = result4 * amount;  // Rich to Poor -> Positive Entropy
+                    } else if (oldSourceCounts < oldTargetCounts) {
+                        entropy = -result4 * amount; // Poor to Rich -> Negative Entropy
+                    }
+
+                    state.netEntropy += entropy;
+
+                    state.transfers.unshift({
+                        id: Date.now(),
+                        from: source.name,
+                        to: target.name,
+                        amount: amount,
+                        type: type,
+                        entropy: entropy,
+                        time: new Date().toLocaleTimeString()
+                    });
+
+                    ui.toast(`TRANSFERRED ${amount}${UNITS[type].symbol}: ${source.name} → ${target.name}`);
+                }
+            }
+        };
+
+        // --- UI RENDERER ---
+        const ui = {
+            hideLoader() {
+                document.getElementById('loader').classList.add('opacity-0', 'pointer-events-none');
+
+                // Populate Precedents Panel once
+                const pPanel = document.getElementById('stat-precedents');
+                pPanel.innerHTML = Object.values(UNITS).map(u =>
+                    `<div><span class="${u.color}">${u.symbol}</span> ${state.precedents[u.id].toLocaleString()}</div>`
+                ).join('');
+            },
+
+            openModal(id) {
+                const m = document.getElementById(id);
+                document.getElementById('modal-overlay').classList.remove('hidden');
+                m.classList.remove('hidden');
+
+                // Clear input when opening init modal
+                if (id === 'modal-init') {
+                    document.getElementById('inp-node-name').value = '';
+                    document.getElementById('inp-node-books').value = '2';
+                    setTimeout(() => document.getElementById('inp-node-name').focus(), 100);
+                }
+
+                setTimeout(() => {
+                    m.classList.remove('scale-95', 'opacity-0');
+                    m.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeModal(id = 'modal-init') {
+                const m = document.getElementById(id);
+                m.classList.remove('scale-100', 'opacity-100');
+                m.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    m.classList.add('hidden');
+                    document.getElementById('modal-overlay').classList.add('hidden');
+                }, 300);
+            },
+
+            closeTransferModal() {
+                const m = document.getElementById('modal-content');
+                m.classList.remove('scale-100', 'opacity-100');
+                m.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    m.classList.add('hidden');
+                    document.getElementById('modal-overlay').classList.add('hidden');
+                }, 300);
+            },
+
+            setTab(tab) {
+                state.activeTab = tab;
+                document.getElementById('tab-books').className = tab === 'books' ? 'text-cyan-400' : 'text-slate-500 hover:text-cyan-400';
+                document.getElementById('tab-transfers').className = tab === 'transfers' ? 'text-purple-400' : 'text-slate-500 hover:text-purple-400';
+            },
+
+            toast(msg) {
+                const c = document.getElementById('toast-container');
+                const t = document.createElement('div');
+                t.className = "glass-panel px-4 py-3 rounded border-l-4 border-cyan-500 text-xs font-bold text-white shadow-xl toast";
+                t.innerText = msg;
+                c.appendChild(t);
+                setTimeout(() => t.remove(), 3000);
+            },
+
+            render() {
+                const vaultSupply = state.participants.reduce((acc, p) => acc + p.vaultBooks, 0);
+                const activeSupply = state.participants.reduce((acc, p) => acc + (p.activeBook ? (p.activeBook.remainingCounts / p.activeBook.maxCounts) : 0), 0);
+
+                document.getElementById('stat-active-supply').innerText = activeSupply.toFixed(4);
+                document.getElementById('stat-total-scarcity').innerText = state.totalScarcity.toLocaleString();
+                document.getElementById('stat-active').innerText = state.participants.filter(p => p.isOnline).length;
+                document.getElementById('stat-vault-books').innerText = (vaultSupply + state.systemSurplus).toFixed(4);
+                document.getElementById('stat-surplus').innerText = `(+${state.systemSurplus})`;
+                document.getElementById('stat-entropy').innerText = state.netEntropy.toLocaleString();
+
+                const residueEl = document.getElementById('stat-residue');
+                if (residueEl) {
+                    const pct = (Math.abs(state.netEntropy) % CONFIG.TOTAL_BOOK_COUNTS) / CONFIG.TOTAL_BOOK_COUNTS * 100;
+                    residueEl.style.width = `${pct}%`;
+                    residueEl.className = `h-full transition-all duration-300 ${state.netEntropy < 0 ? 'bg-rose-500' : 'bg-cyan-400'}`;
+                }
+
+                document.getElementById('sys-time').innerText = `TICK: ${Math.floor(state.simTime / 1000)}`;
+
+                const grid = document.getElementById('node-grid');
+                const search = document.getElementById('search-nodes').value.toLowerCase();
+                const seenIds = new Set();
+
+                state.participants
+                    .filter(p => p.name.toLowerCase().includes(search))
+                    .sort((a,b) => b.primeValue - a.primeValue)
+                    .forEach(p => {
+                        seenIds.add(p.id);
+                        let el = document.getElementById(`node-${p.id}`);
+
+                        const isSource = state.transferSource && state.transferSource.id === p.id;
+                        const isTargetMode = state.transferSource && !isSource;
+
+                        const isGenesis = state.participants.length === 1;
+                        let threshold = state.standardMintScarcity;
+                        const activeH = p.activeHeuristic || (isGenesis ? 'QUADRANT' : null);
+
+                        if (activeH) {
+                            threshold = state.heuristicStandards[activeH].mintScarcity;
+                        }
+
+                        const pct = Math.min(100, (p.primeValue / threshold) * 100);
+
+                        let borderClass = "border-slate-800";
+                        if (isSource) borderClass = "border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.3)]";
+                        else if (isTargetMode) borderClass = "border-purple-500/50 cursor-pointer hover:border-purple-400 hover:bg-purple-500/10";
+                        else if (activeH) borderClass = "border-purple-500/30 active-heuristic";
+                        else if (p.isOnline) borderClass = "border-slate-700 active-standard";
+                        else borderClass = "border-slate-800 node-offline";
+
+                        if (!el) {
+                            el = document.createElement('div');
+                            el.id = `node-${p.id}`;
+                            el.draggable = true;
+                            el.ondragstart = (e) => app.handleDragStart(e, p.id);
+                            el.ondragover = (e) => app.handleDragOver(e, p.id);
+                            el.ondragleave = (e) => app.handleDragLeave(e, p.id);
+                            el.ondrop = (e) => app.handleDrop(e, p.id);
+
+                            el.innerHTML = `
+                                <div class="absolute top-0 left-0 h-1 transition-all duration-300" id="bar-${p.id}" style="width: 0%"></div>
+                                <div class="flex justify-between items-start mb-3 pointer-events-none">
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="text-xs font-bold text-white tracking-wider">${p.name}</h4>
+                                            <span id="badge-${p.id}"></span>
+                                        </div>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span id="status-${p.id}" class="text-[8px] px-1.5 py-0.5 rounded"></span>
+                                            <span id="burning-${p.id}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-end gap-1 pointer-events-auto">
+                                        <button onclick="app.liquidate(${p.id}); event.stopPropagation();" class="text-[8px] text-red-500 hover:text-red-400 uppercase font-bold bg-red-950/30 px-2 py-1 rounded border border-red-900/50">Remove</button>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 gap-2 mb-3 pointer-events-none">
+                                    <div class="bg-slate-900/50 p-2 rounded border border-slate-800 flex justify-between items-center">
+                                        <span class="text-[8px] text-slate-500 uppercase">Scarcity Index</span>
+                                        <span class="text-sm font-bold text-white font-mono" id="val-prime-${p.id}">0</span>
+                                    </div>
+                                    <div class="bg-slate-900/50 p-2 rounded border border-slate-800">
+                                        <p class="text-[8px] text-slate-500 uppercase mb-1">Liquidity Spectrum</p>
+                                        <div class="flex justify-between text-[10px] font-mono font-bold" id="val-spectrum-${p.id}">
+                                            <!-- Spectrum Injected Here -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-2 pt-2 border-t border-slate-800/50 pointer-events-none">
+                                    <div class="flex justify-between text-[8px] text-slate-500 uppercase">
+                                        <span id="val-books-${p.id}">Books: 0</span>
+                                        <span id="val-receipt-${p.id}" class="text-emerald-400 font-bold"></span>
+                                    </div>
+                                    <div class="flex gap-2 pointer-events-auto" id="controls-${p.id}">
+                                        <button onclick="app.deposit(${p.id}); event.stopPropagation();" class="w-full py-1.5 rounded bg-slate-800 text-cyan-400 hover:bg-cyan-500/20 border border-slate-700 hover:border-cyan-500/50 transition-colors font-bold text-[10px] uppercase tracking-wider flex items-center justify-center gap-2">
+                                            <span>Inject Book</span>
+                                        </button>
+                                    </div>
+                                    <div id="debug-${p.id}" class="hidden mt-2 p-2 bg-black/50 rounded text-[8px] font-mono text-yellow-500 border border-yellow-500/20 break-all"></div>
+                                </div>
+                            `;
+                        }
+
+                        el.className = `glass-panel p-4 rounded-xl relative overflow-hidden transition-all duration-300 cursor-grab active:cursor-grabbing ${borderClass}`;
+
+                        const bar = el.querySelector(`#bar-${p.id}`);
+                        if(bar) {
+                            bar.style.width = `${pct}%`;
+                            let barColor = 'bg-slate-500';
+                            if (activeH) barColor = UNITS[activeH].bg;
+                            bar.className = `absolute top-0 left-0 h-1 transition-all duration-300 ${barColor}`;
+                        }
+
+                        const badge = el.querySelector(`#badge-${p.id}`);
+                        if(badge) {
+                            if (activeH && !isGenesis) {
+                                const u = UNITS[activeH];
+                                badge.innerHTML = `<span class="text-[8px] ${u.color} px-1 rounded border border-current opacity-80">${activeH}</span>`;
+                            } else {
+                                badge.innerHTML = '';
+                            }
+                        }
+
+                        const status = el.querySelector(`#status-${p.id}`);
+                        if(status) {
+                            status.className = `text-[8px] px-1.5 py-0.5 rounded ${p.isOnline ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`;
+                            status.innerText = p.isOnline ? 'MINING' : 'OFFLINE';
+                        }
+
+                        const burning = el.querySelector(`#burning-${p.id}`);
+                        if(burning) burning.innerHTML = p.activeBook ? '<span class="text-[8px] text-orange-400 animate-pulse">BURNING</span>' : '';
+
+                        const valPrime = el.querySelector(`#val-prime-${p.id}`);
+                        if(valPrime) valPrime.innerText = p.primeValue.toLocaleString();
+
+                        // Render Liquidity Spectrum
+                        const spectrum = el.querySelector(`#val-spectrum-${p.id}`);
+                        if(spectrum) {
+                            spectrum.innerHTML = Object.values(UNITS).map(u => {
+                                const val = Math.floor(p.primeValue / state.precedents[u.id]);
+                                return `<span class="${val > 0 ? u.color : 'text-slate-700'}" title="${u.name}">${val}${u.symbol}</span>`;
+                            }).join('');
+                        }
+
+                        const valBooks = el.querySelector(`#val-books-${p.id}`);
+                        if(valBooks) {
+                            const fraction = p.activeBook ? (p.activeBook.remainingCounts / p.activeBook.maxCounts) : 0;
+                            valBooks.innerText = `Books: ${(p.vaultBooks + fraction).toFixed(4)}`;
+                        }
+
+                        const valReceipt = el.querySelector(`#val-receipt-${p.id}`);
+                        if(valReceipt) valReceipt.innerText = p.lastReceipt || '';
+
+                        const controls = el.querySelector(`#controls-${p.id}`);
+                        if(controls) controls.style.display = isTargetMode ? 'none' : 'flex';
+
+                        // Debug Info
+                        const debugEl = el.querySelector(`#debug-${p.id}`);
+                        if (debugEl) {
+                            if (state.isDebug) {
+                                debugEl.classList.remove('hidden');
+                                debugEl.innerHTML = `
+                                    <span class="block text-slate-500">INTERNAL STATE</span>
+                                    COUNTS: ${p.counts.toFixed(4)}<br>
+                                    ADJ: ${p.balanceAdjustment}<br>
+                                    IDX: ${Math.round(p.counts) - 1}<br>
+                                    HEUR: ${p.activeHeuristic || 'NULL'}<br>
+                                    BOOK: ${p.activeBook ? p.activeBook.remainingCounts.toFixed(2) : 'NONE'}
+                                `;
+                            } else {
+                                debugEl.classList.add('hidden');
+                            }
+                        }
+
+                        grid.appendChild(el);
+                    });
+
+                Array.from(grid.children).forEach(child => {
+                    const id = parseInt(child.id.replace('node-', ''));
+                    if (!seenIds.has(id)) child.remove();
+                });
+
+                const ledger = document.getElementById('ledger-content');
+                const items = state.activeTab === 'books' ? state.books : state.transfers;
+
+                ledger.innerHTML = items.map(i => {
+                    if (state.activeTab === 'books') {
+                        return `
+                        <div class="flex justify-between items-center p-2 bg-slate-900/40 rounded border border-slate-800 text-[10px]">
+                            <div>
+                                <span class="${i.type === 'ENTROPY_VOID' ? 'text-red-500' : (i.type === 'ENTROPY_LOG' ? 'text-emerald-500' : 'text-cyan-400')} font-bold block">${i.owner}</span>
+                                <span class="text-slate-600">${i.time}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-white font-bold block">${i.value > 0 ? '+'+i.value : i.value} BOOK</span>
+                                <span class="text-[8px] ${i.type === 'ENTROPY_VOID' ? 'text-red-500' : (i.type === 'STANDARD' ? 'text-slate-400' : 'text-purple-500')}">${i.type}</span>
+                            </div>
+                        </div>`;
+                    } else {
+                        const u = UNITS[i.type];
+                        return `
+                        <div class="flex justify-between items-center p-2 bg-slate-900/40 rounded border border-slate-800 text-[10px]">
+                            <div>
+                                <div class="flex gap-1">
+                                    <span class="text-slate-400">${i.from}</span>
+                                    <span class="${u.color}">→</span>
+                                    <span class="text-white font-bold">${i.to}</span>
+                                </div>
+                                <span class="text-slate-600">${i.time}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="${u.color} font-bold block">${i.amount}${u.symbol}</span>
+                                <span class="text-[8px] ${i.entropy > 0 ? 'text-emerald-500' : 'text-red-500'}">ΔS: ${i.entropy}</span>
+                            </div>
+                        </div>`;
+                    }
+                }).join('');
+            }
+        };
+
+        window.onload = () => Engine.init();
+
+    </script>
+</body>
+</html>
