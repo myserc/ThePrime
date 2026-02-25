@@ -24,7 +24,7 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-dark);
             color: #e2e8f0;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 50% 0%, rgba(34, 211, 238, 0.1) 0%, transparent 50%),
                 linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
@@ -63,7 +63,7 @@
         .active-standard { animation: pulse-glow 3s infinite; }
         .active-heuristic { animation: pulse-purple 3s infinite; }
         .node-offline { filter: grayscale(1) opacity(0.5); transition: filter 0.5s; }
-        
+
         .toast { animation: slideIn 0.3s ease-out forwards; }
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
@@ -83,7 +83,7 @@
 
     <!-- Main Content -->
     <div class="max-w-[1600px] mx-auto w-full space-y-6 flex-1 flex flex-col">
-        
+
         <!-- Header -->
         <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-6">
             <div>
@@ -96,7 +96,7 @@
                     <p class="text-slate-500 text-[10px] tracking-widest uppercase" id="sys-time">TICK: 0</p>
                 </div>
             </div>
-            
+
             <div class="flex flex-wrap gap-2 items-center">
                 <div class="flex items-center bg-slate-900/50 rounded-lg border border-slate-800 px-3 py-1.5 mr-2 gap-2">
                     <span class="text-[10px] text-slate-500 uppercase font-bold">Speed</span>
@@ -169,7 +169,7 @@
 
         <!-- Main Layout -->
         <div class="grid grid-cols-1 xl:grid-cols-4 gap-6 flex-1 min-h-0">
-            
+
             <!-- Left: Node Grid -->
             <div class="xl:col-span-3 flex flex-col gap-4 min-h-0">
                 <div class="flex items-center justify-between bg-slate-900/30 p-3 rounded-lg border border-slate-800">
@@ -183,7 +183,7 @@
                          <input type="text" id="search-nodes" placeholder="SEARCH NODES..." class="bg-slate-900 border border-slate-700 rounded px-3 py-1 text-[10px] text-white focus:border-cyan-500 outline-none uppercase w-40">
                     </div>
                 </div>
-                
+
                 <div id="node-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto pr-2 pb-4 custom-scrollbar">
                     <!-- Nodes Injected Here -->
                 </div>
@@ -191,7 +191,7 @@
 
             <!-- Right: Sidebar -->
             <div class="flex flex-col gap-6 min-h-0">
-                
+
                 <!-- Ledger Panel -->
                 <div class="glass-panel rounded-xl flex flex-col flex-1 min-h-[400px]">
                     <div class="p-4 border-b border-slate-800 flex justify-between items-center">
@@ -238,7 +238,7 @@
 
     <!-- Modals -->
     <div id="modal-overlay" class="fixed inset-0 z-[200] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        
+
         <!-- Reusable Modal Container (Transfers) -->
         <div id="modal-content" class="glass-panel w-full max-w-md p-6 rounded-2xl border-cyan-500/30 hidden scale-95 opacity-0 transition-all duration-300">
             <!-- Injected Content -->
@@ -248,7 +248,7 @@
         <div id="modal-init" class="glass-panel w-full max-w-md p-6 rounded-2xl border-cyan-500/30 hidden scale-95 opacity-0 transition-all duration-300">
             <h2 class="text-xl font-bold text-white mb-1 uppercase tracking-tighter">Initialize Node</h2>
             <p class="text-[10px] text-slate-500 mb-6 uppercase">Deploy a new autarkic worker</p>
-            
+
             <div class="space-y-4 mb-6">
                 <div>
                     <label class="block text-[10px] font-bold text-cyan-400 mb-2 uppercase tracking-wider">Node Designation</label>
@@ -281,13 +281,13 @@
             </div>
 
             <div class="space-y-8 text-slate-300 text-sm leading-relaxed">
-                
+
                 <section>
                     <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
                         <span class="text-cyan-400">01.</span> Prime Value Generation
                     </h3>
                     <p class="mb-3">
-                        Value in this system is not arbitrary; it is derived from the <strong class="text-white">Prime Number Sequence</strong>. 
+                        Value in this system is not arbitrary; it is derived from the <strong class="text-white">Prime Number Sequence</strong>.
                         Every unit of work performed by a Node advances its internal counter. This counter corresponds to an ordinal position in the sequence of prime numbers.
                     </p>
                     <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-800 font-mono text-xs text-emerald-400">
@@ -327,7 +327,7 @@
                         <span class="text-orange-400">03.</span> Thermodynamic Entropy
                     </h3>
                     <p class="mb-3">
-                        The system enforces thermodynamic equilibrium through <strong class="text-white">Entropy</strong>. 
+                        The system enforces thermodynamic equilibrium through <strong class="text-white">Entropy</strong>.
                         Transferring value creates an energy differential.
                     </p>
                     <ul class="list-disc pl-5 space-y-2 marker:text-slate-600">
@@ -341,14 +341,14 @@
                         <span class="text-indigo-400">04.</span> Rolling Momentum
                     </h3>
                     <p>
-                        Unlike traditional proof-of-work where progress is binary, this engine uses <strong class="text-white">Rolling Momentum</strong>. 
-                        When a Node mints a Book, it only spends the exact "Counts" required for that difficulty tier. 
+                        Unlike traditional proof-of-work where progress is binary, this engine uses <strong class="text-white">Rolling Momentum</strong>.
+                        When a Node mints a Book, it only spends the exact "Counts" required for that difficulty tier.
                         Any excess work performed is preserved, carrying over to the next cycle. Work is never wasted.
                     </p>
                 </section>
 
             </div>
-            
+
             <div class="mt-8 pt-6 border-t border-slate-800 flex justify-end">
                 <button onclick="ui.closeModal('modal-docs')" class="px-6 py-2 rounded-lg bg-slate-800 text-white text-xs font-bold hover:bg-slate-700 transition-colors uppercase tracking-wider">Close Manual</button>
             </div>
@@ -367,9 +367,9 @@
 
         // --- CONFIGURATION & UNITS ---
         const CONFIG = {
-            TOTAL_BOOK_COUNTS: 648000, 
-            TIME_SCALE: 25,            
-            PRIME_LIMIT: 10000000 
+            TOTAL_BOOK_COUNTS: 648000,
+            TIME_SCALE: 25,
+            PRIME_LIMIT: 10000000
         };
 
         const UNITS = {
@@ -388,11 +388,11 @@
             transfers: [],
             totalScarcity: 0,
             netEntropy: 0,
-            
+
             // Evaluated Standards
             precedents: {},
             heuristicStandards: {},
-            
+
             // Runtime
             lastTick: 0,
             simTime: 0,
@@ -400,15 +400,15 @@
             isAuto: false,
             idCounter: 1000,
             autoSpawnTimer: 0,
-            
+
             // Minting Thresholds
             standardMintScarcity: 0,
-            
+
             // UI State
             activeTab: 'books',
             pendingTransfer: null,
             isDebug: false,
-            
+
             // Economy
             systemSurplus: 0
         };
@@ -416,7 +416,7 @@
         // --- PERSISTENCE ---
         const Persistence = {
             KEY: 'prime_time_v4_state',
-            
+
             save() {
                 const data = {
                     participants: state.participants,
@@ -439,7 +439,7 @@
             load() {
                 const raw = localStorage.getItem(this.KEY);
                 if (!raw) return false;
-                
+
                 try {
                     const data = JSON.parse(raw);
                     state.participants = data.participants || [];
@@ -457,7 +457,7 @@
                     return false;
                 }
             },
-            
+
             clear() {
                 localStorage.removeItem(this.KEY);
                 location.reload();
@@ -470,7 +470,7 @@
                 const limit = CONFIG.PRIME_LIMIT;
                 const sieve = new Uint8Array(limit).fill(1);
                 sieve[0] = 0; sieve[1] = 0;
-                
+
                 const updateProgress = (pct) => {
                     document.getElementById('load-progress').style.width = `${pct}%`;
                 };
@@ -491,7 +491,7 @@
                     if (sieve[i]) tempPrimes.push(i);
                 }
                 state.primes = new Uint32Array(tempPrimes);
-                
+
                 // Calculate Precedents based on 0-indexing
                 Object.values(UNITS).forEach(unit => {
                     state.precedents[unit.id] = this.getPrimeAt(unit.counts - 1);
@@ -499,17 +499,17 @@
 
                 // Calculate Mathematical Heuristic Standard Constants
                 state.standardMintScarcity = this.getPrimeAt(CONFIG.TOTAL_BOOK_COUNTS - 1); // Exact: 9,731,081
-                
+
                 Object.values(UNITS).forEach(unit => {
                     const precedent = state.precedents[unit.id]; // nthPrime(CONFIG.COUNTS_PER_UNIT)
                     const result1 = Math.floor(state.standardMintScarcity / precedent);
                     const result2 = result1 * precedent;
-                    
-                    // primePi(result2) is synonymous to the ordinal 1-based index 
+
+                    // primePi(result2) is synonymous to the ordinal 1-based index
                     // getOrdinalForPrime returns largest index (0-based) where prime <= result2
-                    const result3 = this.getOrdinalForPrime(result2) + 1; 
+                    const result3 = this.getOrdinalForPrime(result2) + 1;
                     const result4 = CONFIG.TOTAL_BOOK_COUNTS - result3; // Entropy Change
-                    
+
                     state.heuristicStandards[unit.id] = {
                         mintScarcity: result2,
                         mintCounts: result3,
@@ -518,7 +518,7 @@
                 });
 
                 console.log(`Engine Ready. Primes: ${state.primes.length}`);
-                
+
                 // Load State
                 const loaded = Persistence.load();
                 if (loaded) ui.toast("SYSTEM STATE RESTORED");
@@ -551,30 +551,68 @@
             start(hasSave) {
                 if (!hasSave) {
                     this.createNode("Node_Alpha", 2);
+                } else {
+                    // Re-initialize workers for restored nodes
+                    state.participants.forEach(p => {
+                        const worker = new Worker('ai-worker.js');
+                        worker.onmessage = (e) => {
+                            const { type, payload } = e.data;
+                            if (type === 'ACTION_TRANSFER') {
+                                app.executeTransfer(p.id, payload.targetId, 1, payload.unitType);
+                            }
+                        };
+                        worker.postMessage({
+                            type: 'INIT',
+                            payload: {
+                                id: p.id,
+                                config: CONFIG
+                            }
+                        });
+                        p.worker = worker;
+                    });
                 }
-                
+
                 // Auto-Save Loop (Every 5 seconds)
                 setInterval(() => Persistence.save(), 5000);
-                
+
                 requestAnimationFrame(this.loop.bind(this));
             },
 
             createNode(name, books) {
+                const id = state.idCounter++;
+                const worker = new Worker('ai-worker.js');
+
+                worker.onmessage = (e) => {
+                    const { type, payload } = e.data;
+                    if (type === 'ACTION_TRANSFER') {
+                        app.executeTransfer(id, payload.targetId, 1, payload.unitType);
+                    }
+                };
+
+                worker.postMessage({
+                    type: 'INIT',
+                    payload: {
+                        id: id,
+                        config: CONFIG
+                    }
+                });
+
                 state.participants.push({
-                    id: state.idCounter++,
+                    id: id,
                     name: name,
                     vaultBooks: books,
                     activeBook: null,
                     counts: 0,
                     primeValue: 0,
                     balanceAdjustment: 0,
-                    
+
                     // Current Unit Heuristic Standard assigned to node
-                    activeHeuristic: null, 
-                    lastReceipt: null, 
-                    
+                    activeHeuristic: null,
+                    lastReceipt: null,
+
                     isOnline: true,
-                    joinedAt: Date.now()
+                    joinedAt: Date.now(),
+                    worker: worker
                 });
                 ui.toast(`Node Initialized: ${name}`);
             },
@@ -582,15 +620,37 @@
             loop(timestamp) {
                 if (!state.lastTick) state.lastTick = timestamp;
                 const delta = timestamp - state.lastTick;
-                
+
                 if (!state.isPaused) {
                     const safeDelta = Math.min(delta, 100);
                     const steps = (safeDelta / 16.67) * CONFIG.TIME_SCALE;
-                    
+
                     if (steps > 0) {
                         state.simTime += safeDelta;
                         this.tick(steps);
                         if (state.isAuto) this.handleAuto(safeDelta);
+                    }
+
+                    // Periodically send state to workers
+                    if (Math.random() < 0.05) { // Roughly every 20 ticks
+                         state.participants.forEach(p => {
+                             if (p.worker) {
+                                 // Serialize only necessary state
+                                 p.worker.postMessage({
+                                     type: 'TICK',
+                                     payload: {
+                                         id: p.id,
+                                         primeValue: p.primeValue,
+                                         participants: state.participants.map(n => ({
+                                             id: n.id,
+                                             name: n.name,
+                                             primeValue: n.primeValue,
+                                             isOnline: n.isOnline
+                                         }))
+                                     }
+                                 });
+                             }
+                         });
                     }
                 }
 
@@ -608,11 +668,11 @@
                     const isGenesis = state.participants.length === 1;
                     let threshold = state.standardMintScarcity;
                     let activeH = p.activeHeuristic || (isGenesis ? 'QUADRANT' : null);
-                    
+
                     if (activeH) {
                         threshold = state.heuristicStandards[activeH].mintScarcity;
                     }
-                    
+
                     const isReady = p.primeValue >= threshold;
                     let actualSteps = 0;
 
@@ -624,13 +684,13 @@
                         }
 
                         if (p.activeBook) {
-                            const burn = steps; 
+                            const burn = steps;
                             if (p.activeBook.remainingCounts >= burn) {
                                 actualSteps = burn;
                                 p.activeBook.remainingCounts -= burn;
                             } else {
                                 actualSteps = p.activeBook.remainingCounts;
-                                p.activeBook = null; 
+                                p.activeBook = null;
                             }
                         }
                     }
@@ -661,7 +721,7 @@
                         const efficiencyGain = CONFIG.TOTAL_BOOK_COUNTS - countsConsumed;
 
                         if (efficiencyGain > 0) {
-                            entropyDelta += efficiencyGain; 
+                            entropyDelta += efficiencyGain;
                         }
 
                         p.vaultBooks++;
@@ -677,18 +737,18 @@
                         // ROLLING MOMENTUM (Non-Destructive Reset)
                         // Philosophy: Work carries over. Subtract only the counts consumed.
                         p.counts = Math.max(0, p.counts - countsConsumed);
-                        
+
                         // Recalculate Prime Value based on remaining counts
                         const newOrdinal = Math.max(0, Math.round(p.counts) - 1);
                         p.primeValue = Engine.getPrimeAt(newOrdinal);
-                        
+
                         // Reset Balance Adjustment (since we are realigning to a prime)
                         p.balanceAdjustment = 0;
-                        
+
                         // Clear Flags
                         p.activeHeuristic = null;
                         p.lastReceipt = null;
-                        
+
                         ui.toast(`${p.name} MINTED BOOK!`);
                     }
 
@@ -697,7 +757,7 @@
 
                 state.totalScarcity = tickTotalScarcity;
                 state.netEntropy += entropyDelta;
-                
+
                 // System Expansion
                 while (state.netEntropy >= CONFIG.TOTAL_BOOK_COUNTS) {
                     state.netEntropy -= CONFIG.TOTAL_BOOK_COUNTS;
@@ -715,7 +775,7 @@
                 // System Contraction
                 while (state.netEntropy <= -CONFIG.TOTAL_BOOK_COUNTS) {
                     state.netEntropy += CONFIG.TOTAL_BOOK_COUNTS;
-                    
+
                     if (state.systemSurplus > 0) {
                         state.systemSurplus--;
                         state.books.unshift({
@@ -791,6 +851,7 @@
             liquidate(id) {
                 const p = state.participants.find(x => x.id === id);
                 if (!p) return;
+                if (p.worker) p.worker.terminate();
                 state.participants = state.participants.filter(x => x.id !== id);
                 ui.toast(`REMOVED ${p.name}`);
             },
@@ -820,7 +881,7 @@
                 const sourceId = parseInt(e.dataTransfer.getData("text/plain"));
                 document.getElementById(`node-${sourceId}`).classList.remove('opacity-50', 'border-purple-500');
                 document.getElementById(`node-${targetId}`).classList.remove('bg-slate-700');
-                
+
                 if (sourceId !== targetId) {
                     this.initiateTransferModal(sourceId, targetId);
                 }
@@ -848,12 +909,12 @@
                 const { sourceId, targetId, type } = state.pendingTransfer;
                 const source = state.participants.find(x => x.id === sourceId);
                 const target = state.participants.find(x => x.id === targetId);
-                
+
                 const unitDef = UNITS[type];
                 const precedent = state.precedents[type];
                 const max = Math.floor(source.primeValue / precedent);
 
-                state.pendingTransfer.max = max; 
+                state.pendingTransfer.max = max;
 
                 const typeButtons = Object.values(UNITS).map(u => {
                     const isActive = u.id === type;
@@ -864,7 +925,7 @@
                 modal.innerHTML = `
                     <h2 class="text-xl font-bold text-white mb-1 uppercase tracking-tighter">Heuristic Transfer</h2>
                     <p class="text-[10px] text-slate-500 mb-6 uppercase">${source.name} → ${target.name}</p>
-                    
+
                     <div class="flex justify-center gap-1 mb-6 bg-slate-900/50 p-1 rounded-lg">
                         ${typeButtons}
                     </div>
@@ -874,7 +935,7 @@
                             <span class="text-4xl font-black ${unitDef.color} font-mono" id="transfer-amount">1</span>
                             <span class="text-[10px] text-slate-500 uppercase">${unitDef.name}S AVAILABLE: ${max.toLocaleString()}</span>
                         </div>
-                        
+
                         <div class="flex justify-center gap-4">
                             <button onmousedown="app.startIncrement(-1)" onmouseup="app.stopIncrement()" onmouseleave="app.stopIncrement()" class="w-12 h-12 rounded-full bg-slate-800 border border-slate-700 text-white font-bold hover:bg-slate-700 active:scale-95 transition-all">-</button>
                             <button onmousedown="app.startIncrement(1)" onmouseup="app.stopIncrement()" onmouseleave="app.stopIncrement()" class="w-12 h-12 rounded-full bg-slate-800 border border-slate-700 text-white font-bold hover:bg-slate-700 active:scale-95 transition-all">+</button>
@@ -890,7 +951,7 @@
 
             incrementInterval: null,
             currentTransferAmount: 1,
-            
+
             startIncrement(delta) {
                 const update = () => {
                     if (!state.pendingTransfer) return;
@@ -900,8 +961,8 @@
                     this.currentTransferAmount = newVal;
                     document.getElementById('transfer-amount').innerText = newVal;
                 };
-                update(); 
-                this.incrementInterval = setInterval(update, 100); 
+                update();
+                this.incrementInterval = setInterval(update, 100);
             },
 
             stopIncrement() {
@@ -912,7 +973,7 @@
                 if (!state.pendingTransfer) return;
                 const { sourceId, targetId, type } = state.pendingTransfer;
                 const amount = this.currentTransferAmount;
-                
+
                 this.executeTransfer(sourceId, targetId, amount, type);
                 ui.closeTransferModal();
                 state.pendingTransfer = null;
@@ -934,7 +995,7 @@
                     const newSourceVal = Math.max(0, source.primeValue - val);
                     const newSourceCounts = Engine.getOrdinalForPrime(newSourceVal);
                     const newSourceBase = Engine.getPrimeAt(newSourceCounts);
-                    
+
                     source.primeValue = newSourceVal;
                     source.counts = newSourceCounts;
                     source.balanceAdjustment = newSourceVal - newSourceBase;
@@ -943,7 +1004,7 @@
                     target.counts = Engine.getOrdinalForPrime(target.primeValue);
                     const newTargetBase = Engine.getPrimeAt(target.counts);
                     target.balanceAdjustment = target.primeValue - newTargetBase;
-                    
+
                     // Assign New Standard to Recipient
                     target.activeHeuristic = type;
                     target.lastReceipt = `+${amount}${UNITS[type].symbol}`;
@@ -951,13 +1012,13 @@
                     // Mathematical Directional Entropy Logic (Result4)
                     const result4 = state.heuristicStandards[type].entropyChange;
                     let entropy = 0;
-                    
+
                     if (oldSourceCounts > oldTargetCounts) {
                         entropy = result4 * amount;  // Rich to Poor -> Positive Entropy
                     } else if (oldSourceCounts < oldTargetCounts) {
                         entropy = -result4 * amount; // Poor to Rich -> Negative Entropy
                     }
-                    
+
                     state.netEntropy += entropy;
 
                     state.transfers.unshift({
@@ -979,10 +1040,10 @@
         const ui = {
             hideLoader() {
                 document.getElementById('loader').classList.add('opacity-0', 'pointer-events-none');
-                
+
                 // Populate Precedents Panel once
                 const pPanel = document.getElementById('stat-precedents');
-                pPanel.innerHTML = Object.values(UNITS).map(u => 
+                pPanel.innerHTML = Object.values(UNITS).map(u =>
                     `<div><span class="${u.color}">${u.symbol}</span> ${state.precedents[u.id].toLocaleString()}</div>`
                 ).join('');
             },
@@ -1043,14 +1104,14 @@
             render() {
                 const vaultSupply = state.participants.reduce((acc, p) => acc + p.vaultBooks, 0);
                 const activeSupply = state.participants.reduce((acc, p) => acc + (p.activeBook ? (p.activeBook.remainingCounts / p.activeBook.maxCounts) : 0), 0);
-                
+
                 document.getElementById('stat-active-supply').innerText = activeSupply.toFixed(4);
                 document.getElementById('stat-total-scarcity').innerText = state.totalScarcity.toLocaleString();
                 document.getElementById('stat-active').innerText = state.participants.filter(p => p.isOnline).length;
                 document.getElementById('stat-vault-books').innerText = (vaultSupply + state.systemSurplus).toFixed(4);
                 document.getElementById('stat-surplus').innerText = `(+${state.systemSurplus})`;
                 document.getElementById('stat-entropy').innerText = state.netEntropy.toLocaleString();
-                
+
                 const residueEl = document.getElementById('stat-residue');
                 if (residueEl) {
                     const pct = (Math.abs(state.netEntropy) % CONFIG.TOTAL_BOOK_COUNTS) / CONFIG.TOTAL_BOOK_COUNTS * 100;
@@ -1070,18 +1131,18 @@
                     .forEach(p => {
                         seenIds.add(p.id);
                         let el = document.getElementById(`node-${p.id}`);
-                        
+
                         const isSource = state.transferSource && state.transferSource.id === p.id;
                         const isTargetMode = state.transferSource && !isSource;
-                        
+
                         const isGenesis = state.participants.length === 1;
                         let threshold = state.standardMintScarcity;
                         const activeH = p.activeHeuristic || (isGenesis ? 'QUADRANT' : null);
-                        
+
                         if (activeH) {
                             threshold = state.heuristicStandards[activeH].mintScarcity;
                         }
-                        
+
                         const pct = Math.min(100, (p.primeValue / threshold) * 100);
 
                         let borderClass = "border-slate-800";
@@ -1099,7 +1160,7 @@
                             el.ondragover = (e) => app.handleDragOver(e, p.id);
                             el.ondragleave = (e) => app.handleDragLeave(e, p.id);
                             el.ondrop = (e) => app.handleDrop(e, p.id);
-                            
+
                             el.innerHTML = `
                                 <div class="absolute top-0 left-0 h-1 transition-all duration-300" id="bar-${p.id}" style="width: 0%"></div>
                                 <div class="flex justify-between items-start mb-3 pointer-events-none">
@@ -1107,6 +1168,7 @@
                                         <div class="flex items-center gap-2">
                                             <h4 class="text-xs font-bold text-white tracking-wider">${p.name}</h4>
                                             <span id="badge-${p.id}"></span>
+                                            ${p.worker ? '<span class="text-[10px] text-cyan-500" title="AI Agent Active">🤖</span>' : ''}
                                         </div>
                                         <div class="flex items-center gap-2 mt-1">
                                             <span id="status-${p.id}" class="text-[8px] px-1.5 py-0.5 rounded"></span>
@@ -1225,7 +1287,7 @@
 
                 const ledger = document.getElementById('ledger-content');
                 const items = state.activeTab === 'books' ? state.books : state.transfers;
-                
+
                 ledger.innerHTML = items.map(i => {
                     if (state.activeTab === 'books') {
                         return `
