@@ -1,0 +1,4 @@
+port = 3005
+agents_count = 5000
+checkpoint_interval = 200
+metrics_port = 9000
